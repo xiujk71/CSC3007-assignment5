@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.8.0/leaflet.css" />
+  <style>
+
+  #map {
+    width: 1000px;
+    height: 600px;
+  }
+                        
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.8.0/leaflet.js"></script>
+  <script>
+
+
+    let myData = {}
+	let timeStamp = {}
+	fetch('https://api.data.gov.sg/v1/environment/psi')
+		.then(response => response.json())
+		.then(data => {
+			psiData = data.items[0].readings.psi_twenty_four_hourly
+            locData = data.region_metadata
+            //let tiles = new L.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+            let tiles = new L.tileLayer('https://maps-{s}.onemap.sg/v3/Default/{z}/{x}/{y}.png', {
+                detectRetina: true,
+                maxZoom: 18,
+                minZoom: 11,
+                //Do not remove this attribution
+                attribution: '<img src="https://docs.onemap.sg/maps/images/oneMap64-01.png" style="height:20px;width:20px;">' +
+                             'New OneMap | Map data © contributors, <a href="http://SLA.gov.sg">Singapore Land Authority</a>'
+            });
+
+            let map = new L.Map("map", {
+                center: [1.347833, 103.809357], 
+                zoom: 11,
+                maxBounds: L.latLngBounds(L.latLng(1.1, 103.5), L.latLng(1.5, 104.3))
+                })
+                .addLayer(tiles);
+
+            let west = L.marker([locData[0].label_location.latitude, locData[0].label_location.longitude]).addTo(map);
+            west.bindPopup("<b>West PSI: " + psiData.west + "</b>");
+            let east = L.marker([locData[2].label_location.latitude, locData[2].label_location.longitude]).addTo(map);
+            east.bindPopup("<b>East PSI: " + psiData.east + "</b>");
+            let central = L.marker([locData[3].label_location.latitude, locData[3].label_location.longitude]).addTo(map);
+            central.bindPopup("<b>Central PSI: " + psiData.central + "</b>");
+            let south = L.marker([locData[4].label_location.latitude, locData[4].label_location.longitude]).addTo(map);
+            south.bindPopup("<b>South PSI: " + psiData.south + "</b>");
+            let north = L.marker([locData[5].label_location.latitude, locData[5].label_location.longitude]).addTo(map);
+            north.bindPopup("<b>North PSI: " + psiData.north + "</b>");
+
+
+
+            console.log(psiData)
+            console.log(locData)
+            console.log(locData[0].label_location)
+		}
+		
+	);
+
+    
+
+  </script>
+</body>
+</html>
